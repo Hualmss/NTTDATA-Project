@@ -31,7 +31,12 @@ public class BankAccountController {
 
     @PostMapping(value = "bankAccounts", consumes=MediaType.APPLICATION_JSON_VALUE)
     public void saveBankAccount(@RequestBody BankAccount bankAccount){
+
+
         bankAccountService.saveBankAccount(bankAccount);
     }
+
+
+
 }
 
