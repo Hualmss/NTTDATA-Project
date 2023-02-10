@@ -9,7 +9,7 @@ import com.nttdata.products.products.model.BankAccount;
 import com.nttdata.products.products.repository.BankAccountRepository;
 
 @Service
-public class BankAccountImpl implements BankAccountService{
+public class BankAccountServiceImpl implements BankAccountService{
 
     @Autowired
     BankAccountRepository bankAccountRepository;

@@ -2,6 +2,7 @@ package com.nttdata.products.products.model;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -19,11 +20,11 @@ public class BankAccount implements Serializable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="")
     private long bank_account_id;
 
 
     private double balance;
-
 
     @NotNull
     private long bank_account_type_id;
