@@ -8,5 +8,12 @@ public interface BankAccountService {
     
     List<BankAccount> getBankAccounts();
 
-    boolean saveBankAccount(BankAccount account);
+    void saveBankAccount(BankAccount account);
+
+    void deleteBankAccount(long id);
+
+    BankAccount updateBankAccount(BankAccount bankAccount);
+
+    BankAccount getBankAccountById(long id);
+
 }

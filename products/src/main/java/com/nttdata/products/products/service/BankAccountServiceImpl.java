@@ -14,16 +14,36 @@ public class BankAccountServiceImpl implements BankAccountService{
     @Autowired
     BankAccountRepository bankAccountRepository;
 
+
+
     @Override
     public List<BankAccount> getBankAccounts() {
-        
         return bankAccountRepository.findAll();
     }
 
     @Override
-    public boolean saveBankAccount(BankAccount account) {
+    public void saveBankAccount(BankAccount account) {
         bankAccountRepository.save(account);
-        return true;
+        
+    }
+
+    @Override
+    public void deleteBankAccount(long id) {
+        bankAccountRepository.deleteById(id);
+
+        
+    }
+
+    @Override
+    public BankAccount updateBankAccount(BankAccount bankAccount) {
+        return bankAccountRepository.save(bankAccount);
+        
+    }
+
+    @Override
+    public BankAccount getBankAccountById(long id) {
+        
+        return bankAccountRepository.findById(id).orElseThrow();
     }
     
 }
