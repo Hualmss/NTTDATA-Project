@@ -12,26 +12,28 @@ import javax.validation.constraints.NotNull;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Setter @Getter
 @Table(name = "bank_account")
-
+@AllArgsConstructor
+@NoArgsConstructor
 public class BankAccount implements Serializable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     
-    private long bank_account_id;
+    private long bankAccountId;
 
 
     private double balance;
 
     @NotNull
-    private long bank_account_type_id;
+    private long bankAccountTypeId;
 
     @NotNull
-    private long bank_account_client_id;
+    private long bankAccountClientId;
     
 }

@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nttdata.products.products.model.BankAccount;
-
+import com.nttdata.products.products.model.BankAccountHolder;
+import com.nttdata.products.products.service.BankAccountHolderService;
 import com.nttdata.products.products.service.BankAccountService;
 
 
@@ -30,6 +31,9 @@ public class BankAccountController {
     @Autowired
     BankAccountService bankAccountService;
 
+    @Autowired
+    BankAccountHolderService bankAccountHolderService;
+
 
 
     @GetMapping(value="", produces=MediaType.APPLICATION_JSON_VALUE)
@@ -39,12 +43,31 @@ public class BankAccountController {
 
 
 
+    @PostMapping(value = "/enterpriceClient/holder", consumes=MediaType.APPLICATION_JSON_VALUE)
+    public List<BankAccountHolder> saveHolderEnterpriceBankAccount(@RequestBody BankAccountHolder bankAccountholder){
+        bankAccountHolderService.saveHolder(bankAccountholder);
+        return bankAccountHolderService.getAllBankAccountHolders();
+    }
 
+    @GetMapping(value = "/enterpriceClient/holder", produces =MediaType.APPLICATION_JSON_VALUE)
+    public List<BankAccountHolder> getAllBankAccountHolders(){
+        return bankAccountHolderService.getAllBankAccountHolders();
+    }
+    @DeleteMapping(value = "/enterpriceClient/holder/{accountId}/{holderId}")
+    public List<BankAccountHolder> deleteHolderEnterpriceBankAccount(@PathVariable("accountId") long accountId,@PathVariable("holderId") long holderId ){
+        bankAccountHolderService.deleteBankAccountHolder( holderId,accountId);
+        return bankAccountHolderService.getAllBankAccountHolders();
+    }
 
-    @PostMapping(value = "", consumes=MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/enterpriceClient", consumes=MediaType.APPLICATION_JSON_VALUE)
+    public List<BankAccount> saveEnterpriceBankAccount(@RequestBody BankAccount bankAccount){
+        bankAccountService.saveEnterpriceBankAccount(bankAccount);
+        return bankAccountService.getBankAccounts();
+    }
+    @PostMapping(value = "/personalClient", consumes=MediaType.APPLICATION_JSON_VALUE)
     public List<BankAccount> saveBankAccount(@RequestBody BankAccount bankAccount){
 
-        bankAccountService.saveBankAccount(bankAccount);
+        bankAccountService.savePersonalBankAccount(bankAccount);
         return bankAccountService.getBankAccounts();
     }
 

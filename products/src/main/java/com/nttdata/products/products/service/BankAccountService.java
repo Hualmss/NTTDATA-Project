@@ -8,7 +8,9 @@ public interface BankAccountService {
     
     List<BankAccount> getBankAccounts();
 
-    void saveBankAccount(BankAccount account);
+    void saveEnterpriceBankAccount(BankAccount account);
+
+    void savePersonalBankAccount(BankAccount account);
 
     void deleteBankAccount(long id);
 
