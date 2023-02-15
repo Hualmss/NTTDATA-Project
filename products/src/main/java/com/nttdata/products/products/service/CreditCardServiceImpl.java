@@ -1,7 +1,9 @@
 package com.nttdata.products.products.service;
 
+import com.nttdata.products.products.feignClients.ClientFeignClient;
 import com.nttdata.products.products.model.CreditCard;
 import com.nttdata.products.products.repository.CreditCardRepository;
+import com.nttdata.products.products.util.BalanceAvailable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +14,9 @@ public class CreditCardServiceImpl implements CreditCardService{
     @Autowired
     CreditCardRepository creditCardRepository;
 
+    @Autowired
+    private ClientFeignClient clientFeignClient;
+
     @Override
     public List<CreditCard> getCreditCards() {
         return creditCardRepository.findAll();
@@ -21,8 +26,20 @@ public class CreditCardServiceImpl implements CreditCardService{
      * @param creditCard
      */
     @Override
-    public void saveCreditCard(CreditCard creditCard) {
-        creditCardRepository.save(creditCard);
+    public void createPersonalCreditCard(CreditCard creditCard) {
+        if (clientFeignClient.isPersonalClient(creditCard.getClientId())) {
+            creditCardRepository.save(creditCard);
+        }
+    }
+
+    /**
+     * @param creditCard
+     */
+    @Override
+    public void createEnterpriseCreditCard(CreditCard creditCard) {
+        if (clientFeignClient.isEnterpriceClient(creditCard.getClientId())) {
+            creditCardRepository.save(creditCard);
+        }
     }
 
     /**
@@ -46,10 +63,7 @@ public class CreditCardServiceImpl implements CreditCardService{
      */
     @Override
     public void pay(long id, double amount) {
-
         creditCardRepository.findById(id).ifPresent(c -> {
-            //LocalDate date = LocalDate.from(Instant.now());
-            //boolean penalty = date.isAfter(c.getPaymentDate());
             c.setBalance(c.getBalance() - amount);
             creditCardRepository.save(c);
         });
@@ -59,9 +73,12 @@ public class CreditCardServiceImpl implements CreditCardService{
      * @param id
      */
     @Override
-    public String checkBalance(long id) {
-        CreditCard creditCard = creditCardRepository.findById(id).orElse(null);
-        assert creditCard != null;
-        return ""+ (creditCard.getLimitBalance() - creditCard.getBalance());
+    public BalanceAvailable checkBalance(long id) {
+        BalanceAvailable balanceAvailable = new BalanceAvailable(-1L, 0);
+        creditCardRepository.findById(id).ifPresent(c -> {
+            balanceAvailable.setId(c.getCreditCardId());
+            balanceAvailable.setBalance(c.getLimitBalance() - c.getBalance());
+        });
+        return balanceAvailable;
     }
 }
