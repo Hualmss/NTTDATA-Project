@@ -10,20 +10,39 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping(value = "credits")
 public class CreditController {
     @Autowired
     CreditService creditService;
 
-    @GetMapping(value = "credits", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public List<Credit> getCredits() {
         return creditService.getCredits();
     }
 
-    @PostMapping(value = "credits", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "createPersonalCredit", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public void saveCredit(@RequestBody Credit credit) {
-        creditService.createCredit(credit);
+    public void createPersonalCredit(@RequestBody Credit credit) {
+        creditService.createPersonalCredit(credit);
+    }
+
+    @PostMapping(value = "createEnterpriseCredit", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public void createEnterpriseCredit(@RequestBody Credit credit) {
+        creditService.createBusinessCredit(credit);
+    }
+
+    @PutMapping(value = "edit/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void editCredit(@PathVariable("id") long id, @RequestBody Credit credit) {
+        creditService.editCredit(id, credit);
+    }
+
+    @PatchMapping(value = "pay/{id}/{amount}")
+    @ResponseStatus(HttpStatus.OK)
+    public void pay(@PathVariable("id") long id, @PathVariable("amount") double amount) {
+        creditService.pay(id, amount);
     }
 
 }

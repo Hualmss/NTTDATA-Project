@@ -6,7 +6,8 @@ import java.util.List;
 
 public interface CreditService {
     List<Credit> getCredits();
-    void createCredit(Credit credit);
+    void createPersonalCredit(Credit credit);
+    void createBusinessCredit(Credit credit);
     void editCredit(long id, Credit credit);
     void pay(long id, double amount);
 }

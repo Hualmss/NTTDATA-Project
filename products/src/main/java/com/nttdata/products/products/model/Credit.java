@@ -25,7 +25,6 @@ public class Credit implements Serializable {
     private double balance;
     private double interestRate;
     private Date paymentDate;
-    private int dues;
     @NotNull
     private long creditTypeId;
     @NotNull

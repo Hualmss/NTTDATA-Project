@@ -1,5 +1,6 @@
 package com.nttdata.products.products.service;
 
+import com.nttdata.products.products.feignClients.ClientFeignClient;
 import com.nttdata.products.products.model.Credit;
 import com.nttdata.products.products.repository.CreditRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,9 @@ import java.util.List;
 public class CreditServiceImpl implements CreditService{
     @Autowired
     CreditRepository creditRepository;
+
+    @Autowired
+    private ClientFeignClient clientFeignClient;
 
     /**
      * @return list of all credits
@@ -24,10 +28,24 @@ public class CreditServiceImpl implements CreditService{
      * @param credit 
      */
     @Override
-    public void createCredit(Credit credit) {
-        creditRepository.save(credit);
+    public void createPersonalCredit(Credit credit) {
+        boolean isPersonalClient = clientFeignClient.isPersonalClient(credit.getClientId());
+        List<Credit> search = creditRepository.findByClientId(credit.getClientId());
+
+        if (isPersonalClient && search.isEmpty()) {
+            creditRepository.save(credit);
+        }
     }
 
+    /**
+     * @param credit
+     */
+    @Override
+    public void createBusinessCredit(Credit credit) {
+        if (clientFeignClient.isEnterpriceClient(credit.getClientId())) {
+            creditRepository.save(credit);
+        }
+    }
     /**
      * @param id
      * @param credit
@@ -44,7 +62,7 @@ public class CreditServiceImpl implements CreditService{
     @Override
     public void pay(long id, double amount) {
         creditRepository.findById(id).ifPresent(c -> {
-            c.setBalance(c.getBalance() + amount);
+            c.setBalance(c.getBalance() - amount);
             creditRepository.save(c);
         });
     }
