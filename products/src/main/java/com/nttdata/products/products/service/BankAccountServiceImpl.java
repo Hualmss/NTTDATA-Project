@@ -173,7 +173,7 @@ public class BankAccountServiceImpl implements BankAccountService{
             case (int)SAVINGS_ACCOUNT:
                 return verifySavingsAccount(bankAccount);
             case (int)CURRENT_ACCOUNT:
-                return true;
+                return verifyCurrentAccount(bankAccount);
             case (int)FIXED_TERM_ACCOUNT:
                 return verifyFixedTermAccount(bankAccount);
             default:
@@ -190,7 +190,7 @@ public class BankAccountServiceImpl implements BankAccountService{
 
     public boolean verifyCurrentAccount(BankAccount bankAccount){
         bankAccount.setMovimentsAllowed(bankAccount.getMovimentsAllowed()+1);
-        return (bankAccount.getMovimentsAllowed()>0) ? true : false;
+        return true;
     }
     
     public boolean verifyFixedTermAccount(BankAccount bankAccount){
