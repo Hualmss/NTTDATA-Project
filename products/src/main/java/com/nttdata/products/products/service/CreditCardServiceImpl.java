@@ -1,13 +1,17 @@
 package com.nttdata.products.products.service;
 
 import com.nttdata.products.products.feignClients.ClientFeignClient;
+import com.nttdata.products.products.feignClients.MovimentFeignClient;
 import com.nttdata.products.products.model.CreditCard;
+import com.nttdata.products.products.model.Moviments;
 import com.nttdata.products.products.repository.CreditCardRepository;
 import com.nttdata.products.products.util.BalanceAvailable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static com.nttdata.products.products.util.MovimentType.*;
 
 @Service
 public class CreditCardServiceImpl implements CreditCardService{
@@ -16,6 +20,9 @@ public class CreditCardServiceImpl implements CreditCardService{
 
     @Autowired
     private ClientFeignClient clientFeignClient;
+
+    @Autowired
+    private MovimentFeignClient movimentFeignClient;
 
     @Override
     public List<CreditCard> getCreditCards() {
@@ -53,6 +60,8 @@ public class CreditCardServiceImpl implements CreditCardService{
             if (balance <= c.getLimitBalance()) {
                 c.setBalance(balance);
                 creditCardRepository.save(c);
+                Moviments mov = new Moviments(id,c.getClientId(),amount, MOVIMENT_CHARGE);
+                movimentFeignClient.saveMoviment(mov);
             }
         });
     }
@@ -66,6 +75,8 @@ public class CreditCardServiceImpl implements CreditCardService{
         creditCardRepository.findById(id).ifPresent(c -> {
             c.setBalance(c.getBalance() - amount);
             creditCardRepository.save(c);
+            Moviments mov = new Moviments(id,c.getClientId(),amount, MOVIMENT_PAY);
+            movimentFeignClient.saveMoviment(mov);
         });
     }
 

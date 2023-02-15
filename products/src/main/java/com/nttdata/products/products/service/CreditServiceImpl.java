@@ -1,12 +1,17 @@
 package com.nttdata.products.products.service;
 
 import com.nttdata.products.products.feignClients.ClientFeignClient;
+import com.nttdata.products.products.feignClients.MovimentFeignClient;
 import com.nttdata.products.products.model.Credit;
+import com.nttdata.products.products.model.Moviments;
 import com.nttdata.products.products.repository.CreditRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static com.nttdata.products.products.util.MovimentType.MOVIMENT_CHARGE;
+import static com.nttdata.products.products.util.MovimentType.MOVIMENT_PAY;
 
 @Service
 public class CreditServiceImpl implements CreditService{
@@ -15,6 +20,9 @@ public class CreditServiceImpl implements CreditService{
 
     @Autowired
     private ClientFeignClient clientFeignClient;
+
+    @Autowired
+    private MovimentFeignClient movimentFeignClient;
 
     /**
      * @return list of all credits
@@ -64,6 +72,8 @@ public class CreditServiceImpl implements CreditService{
         creditRepository.findById(id).ifPresent(c -> {
             c.setBalance(c.getBalance() - amount);
             creditRepository.save(c);
+            Moviments mov = new Moviments(id,c.getClientId(),amount, MOVIMENT_PAY);
+            movimentFeignClient.saveMoviment(mov);
         });
     }
 }
