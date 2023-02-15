@@ -18,4 +18,8 @@ public interface BankAccountService {
 
     BankAccount getBankAccountById(long id);
 
+    void deposit(long bankAccountId, double amount);
+
+    void withdraw(long bankAccountId, double amount);
+
 }

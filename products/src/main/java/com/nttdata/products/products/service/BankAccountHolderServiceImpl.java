@@ -17,18 +17,15 @@ public class BankAccountHolderServiceImpl implements BankAccountHolderService{
     @Override
     public void saveHolder(BankAccountHolder bankAccountHolder) {
         bankAccountHolderRepository.save(bankAccountHolder);
-        
     }
 
     @Override
     public List<BankAccountHolder> getBankAccountHolders(long bankAccountId) {
-        
         return bankAccountHolderRepository.findByBankAccountId(bankAccountId);
     }
 
     @Override
     public void deleteBankAccountHolder(long clientBankAccountId, long bankAccountId) {
-        // TODO Auto-generated method stub
         bankAccountHolderRepository.findByClientBankAccountId(clientBankAccountId)
         .stream()
         .filter(holdersAccount -> holdersAccount.getBankAccountId()==bankAccountId)
@@ -39,6 +36,4 @@ public class BankAccountHolderServiceImpl implements BankAccountHolderService{
     public List<BankAccountHolder> getAllBankAccountHolders(){
         return bankAccountHolderRepository.findAll();
     }
-    
-    
 }

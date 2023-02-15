@@ -15,9 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nttdata.products.products.model.BankAccount;
 import com.nttdata.products.products.model.BankAccountHolder;
+import com.nttdata.products.products.model.BankAccountSignatory;
 import com.nttdata.products.products.service.BankAccountHolderService;
 import com.nttdata.products.products.service.BankAccountService;
-
+import com.nttdata.products.products.service.BankAccountSignatoryService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,10 +30,13 @@ public class BankAccountController {
     
 
     @Autowired
-    BankAccountService bankAccountService;
+    private BankAccountService bankAccountService;
 
     @Autowired
-    BankAccountHolderService bankAccountHolderService;
+    private BankAccountHolderService bankAccountHolderService;
+
+    @Autowired
+    private BankAccountSignatoryService bankAccountSignatoryService;
 
 
 
@@ -42,6 +46,10 @@ public class BankAccountController {
     }
 
 
+    @GetMapping(value = "/enterpriceClient/holder/{accountId}", produces =MediaType.APPLICATION_JSON_VALUE)
+    public List<BankAccountHolder> getAllBankAccountHolders(@PathVariable long accountId){
+        return bankAccountHolderService.getBankAccountHolders(accountId);
+    }
 
     @PostMapping(value = "/enterpriceClient/holder", consumes=MediaType.APPLICATION_JSON_VALUE)
     public List<BankAccountHolder> saveHolderEnterpriceBankAccount(@RequestBody BankAccountHolder bankAccountholder){
@@ -49,14 +57,30 @@ public class BankAccountController {
         return bankAccountHolderService.getAllBankAccountHolders();
     }
 
-    @GetMapping(value = "/enterpriceClient/holder", produces =MediaType.APPLICATION_JSON_VALUE)
-    public List<BankAccountHolder> getAllBankAccountHolders(){
-        return bankAccountHolderService.getAllBankAccountHolders();
-    }
+    
     @DeleteMapping(value = "/enterpriceClient/holder/{accountId}/{holderId}")
     public List<BankAccountHolder> deleteHolderEnterpriceBankAccount(@PathVariable("accountId") long accountId,@PathVariable("holderId") long holderId ){
         bankAccountHolderService.deleteBankAccountHolder( holderId,accountId);
         return bankAccountHolderService.getAllBankAccountHolders();
+    }
+
+
+    @GetMapping(value = "/enterpriceClient/signatory/{accountId}", produces =MediaType.APPLICATION_JSON_VALUE)
+    public List<BankAccountSignatory> getAllBankAccountSignatories(@PathVariable long accountId){
+        return bankAccountSignatoryService.getBankAccountSignatory(accountId);
+    }
+
+    @PostMapping(value = "/enterpriceClient/signatory", consumes=MediaType.APPLICATION_JSON_VALUE)
+    public List<BankAccountSignatory> saveSignatoryEnterpriceBankAccount(@RequestBody BankAccountSignatory bankAccountholder){
+        bankAccountSignatoryService.saveSignatory(bankAccountholder);
+        return bankAccountSignatoryService.getAllBankAccountSignatory();
+    }
+
+    
+    @DeleteMapping(value = "/enterpriceClient/signatory/{accountId}/{holderId}")
+    public List<BankAccountSignatory> deleteSignatoryEnterpriceBankAccount(@PathVariable("accountId") long accountId,@PathVariable("holderId") long holderId ){
+        bankAccountSignatoryService.deleteBankAccountSignatory( holderId,accountId);
+        return bankAccountSignatoryService.getAllBankAccountSignatory();
     }
 
     @PostMapping(value = "/enterpriceClient", consumes=MediaType.APPLICATION_JSON_VALUE)
@@ -66,11 +90,22 @@ public class BankAccountController {
     }
     @PostMapping(value = "/personalClient", consumes=MediaType.APPLICATION_JSON_VALUE)
     public List<BankAccount> saveBankAccount(@RequestBody BankAccount bankAccount){
-
         bankAccountService.savePersonalBankAccount(bankAccount);
         return bankAccountService.getBankAccounts();
     }
 
+
+    @PutMapping(value = "/deposit/{bankAccountId}/{ammout}")
+    public BankAccount deposit(@PathVariable ("bankAccountId")long bankAccountId, @PathVariable ("ammout")double ammout){
+        bankAccountService.deposit(bankAccountId, ammout);
+        return bankAccountService.getBankAccountById(bankAccountId);
+    }
+
+    @PutMapping(value = "/withdraw/{bankAccountId}/{ammout}")
+    public BankAccount withdraw(@PathVariable ("bankAccountId")long bankAccountId, @PathVariable ("ammout")double ammout){
+        bankAccountService.withdraw(bankAccountId, ammout);
+        return bankAccountService.getBankAccountById(bankAccountId);
+    }
 
     @PutMapping(value = "/{id}",consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE )
     public BankAccount updateBankAccount(@PathVariable long id,@RequestBody BankAccount bankAccount ){
@@ -79,6 +114,8 @@ public class BankAccountController {
         }
         return bankAccountService.updateBankAccount(bankAccount);
     } 
+
+
 
     @DeleteMapping(value ="/{id}", produces=MediaType.APPLICATION_JSON_VALUE)
     public List<BankAccount> deleteBankAccount(@PathVariable long id){
@@ -90,7 +127,5 @@ public class BankAccountController {
         return bankAccountService.getBankAccounts();
         
     }
-    
-
 }
 
