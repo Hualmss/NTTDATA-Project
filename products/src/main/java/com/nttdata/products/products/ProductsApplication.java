@@ -39,12 +39,12 @@ public class ProductsApplication {
 			bankAccountTypeService.saveBankAccountType(new BankAccountType(3,"Cuenta a plazo fijo", 1,0));
 
 
-			bankAccountService.saveEnterpriceBankAccount(new BankAccount(1,200,1,1, null,0));
-			bankAccountService.saveEnterpriceBankAccount(new BankAccount(2,300,2,2, null,0));
-			bankAccountService.saveEnterpriceBankAccount(new BankAccount(3,400,3,3, null,0));
-			bankAccountService.savePersonalBankAccount(new BankAccount(4,500,1,4, null,0));
-			bankAccountService.savePersonalBankAccount(new BankAccount(5,600,2,5, null,0));
-			bankAccountService.savePersonalBankAccount(new BankAccount(6,700,3,6, null,0));
+			bankAccountService.saveEnterpriceBankAccount(new BankAccount(1,200,1,1, 10,null,0));
+			bankAccountService.saveEnterpriceBankAccount(new BankAccount(2,300,2,2, 0,null,1));
+			bankAccountService.saveEnterpriceBankAccount(new BankAccount(3,400,3,3, 1,null,0));
+			bankAccountService.savePersonalBankAccount(new BankAccount(4,500,1,4, 10,null,0));
+			bankAccountService.savePersonalBankAccount(new BankAccount(5,600,2,5, 0,null,0));
+			bankAccountService.savePersonalBankAccount(new BankAccount(6,700,3,6, 1,null,0));
 			
 		};
 		

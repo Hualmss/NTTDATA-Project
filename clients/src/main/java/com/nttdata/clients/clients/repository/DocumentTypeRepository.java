@@ -8,4 +8,4 @@ import com.nttdata.clients.clients.model.DocumentType;
 @Repository
 public interface DocumentTypeRepository extends JpaRepository<DocumentType, Long> {
     
-}
+}   
