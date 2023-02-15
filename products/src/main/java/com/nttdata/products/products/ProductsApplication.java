@@ -8,6 +8,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import com.nttdata.products.products.model.BankAccount;
 import com.nttdata.products.products.model.BankAccountType;
@@ -16,6 +17,7 @@ import com.nttdata.products.products.service.BankAccountTypeService;
 
 @EnableFeignClients
 @SpringBootApplication
+@EnableJpaAuditing
 public class ProductsApplication {
 
 	@Autowired
@@ -32,17 +34,17 @@ public class ProductsApplication {
 	CommandLineRunner run() throws ParseException{
 		return args -> {
 
-			bankAccountTypeService.saveBankAccountType(new BankAccountType(1,"Cuenta ahorro", 5,5));
-			bankAccountTypeService.saveBankAccountType(new BankAccountType(2,"Cuenta corriente", 5,5));
-			bankAccountTypeService.saveBankAccountType(new BankAccountType(3,"Cuenta a plazo fijo", 5,5));
+			bankAccountTypeService.saveBankAccountType(new BankAccountType(1,"Cuenta ahorro", 5,0));
+			bankAccountTypeService.saveBankAccountType(new BankAccountType(2,"Cuenta corriente", 0,5));
+			bankAccountTypeService.saveBankAccountType(new BankAccountType(3,"Cuenta a plazo fijo", 1,0));
 
 
-			bankAccountService.saveEnterpriceBankAccount(new BankAccount(1,200,1,1));
-			bankAccountService.saveEnterpriceBankAccount(new BankAccount(2,300,2,2));
-			bankAccountService.saveEnterpriceBankAccount(new BankAccount(3,400,3,3));
-			bankAccountService.savePersonalBankAccount(new BankAccount(4,500,1,4));
-			bankAccountService.savePersonalBankAccount(new BankAccount(5,600,2,5));
-			bankAccountService.savePersonalBankAccount(new BankAccount(6,700,3,6));
+			bankAccountService.saveEnterpriceBankAccount(new BankAccount(1,200,1,1, null,0));
+			bankAccountService.saveEnterpriceBankAccount(new BankAccount(2,300,2,2, null,0));
+			bankAccountService.saveEnterpriceBankAccount(new BankAccount(3,400,3,3, null,0));
+			bankAccountService.savePersonalBankAccount(new BankAccount(4,500,1,4, null,0));
+			bankAccountService.savePersonalBankAccount(new BankAccount(5,600,2,5, null,0));
+			bankAccountService.savePersonalBankAccount(new BankAccount(6,700,3,6, null,0));
 			
 		};
 		
