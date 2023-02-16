@@ -45,6 +45,8 @@ public class BankAccount implements Serializable{
     @NotNull
     private long bankAccountClientId;
 
+    
+    private int movimentsAllowed;
 
     @Transient
     @JsonFormat(pattern = "YYY-MM-dd")
@@ -54,6 +56,8 @@ public class BankAccount implements Serializable{
     @Transient
     @JsonProperty(access = Access.WRITE_ONLY)
     private long bankAccountHolderId;
+
+    
 
     
 }

@@ -22,8 +22,8 @@ public class BankAccountTypeServiceImpl implements BankAccountTypeService {
 
     @Override
     public BankAccountType getBankAccountType(long id) {
-        // TODO Auto-generated method stub
-        return null;
+        
+        return bankAccountTypeRepository.findById(id).orElse(null);
     }
 
 

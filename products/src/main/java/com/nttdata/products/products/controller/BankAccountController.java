@@ -19,6 +19,7 @@ import com.nttdata.products.products.model.BankAccountSignatory;
 import com.nttdata.products.products.service.BankAccountHolderService;
 import com.nttdata.products.products.service.BankAccountService;
 import com.nttdata.products.products.service.BankAccountSignatoryService;
+import com.nttdata.products.products.util.BalanceAvailable;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -43,6 +44,11 @@ public class BankAccountController {
     @GetMapping(value="", produces=MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<BankAccount>> getBankAccounts(){
         return new ResponseEntity<>(bankAccountService.getBankAccounts(), HttpStatus.OK);
+    }
+
+    @GetMapping(value="checkBalance/{accountId}", produces=MediaType.APPLICATION_JSON_VALUE)
+    public BalanceAvailable checkBalance(@PathVariable long accountId){
+        return bankAccountService.checkBalance(accountId);
     }
 
 

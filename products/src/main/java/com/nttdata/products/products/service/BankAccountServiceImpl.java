@@ -1,5 +1,6 @@
 package com.nttdata.products.products.service;
 
+import java.util.Calendar;
 import java.util.List;
 
 
@@ -9,10 +10,17 @@ import org.springframework.stereotype.Service;
 import com.nttdata.products.products.feignClients.ClientFeignClient;
 import com.nttdata.products.products.feignClients.MovimentFeignClient;
 import com.nttdata.products.products.model.BankAccount;
+
+import com.nttdata.products.products.model.MovementDate;
 import com.nttdata.products.products.model.Moviments;
 import com.nttdata.products.products.repository.BankAccountRepository;
+import com.nttdata.products.products.repository.MovementDateRepository;
+import com.nttdata.products.products.util.BalanceAvailable;
 
 import static com.nttdata.products.products.util.AccountsTypes.CURRENT_ACCOUNT;
+import static com.nttdata.products.products.util.AccountsTypes.FIXED_TERM_ACCOUNT;
+import static com.nttdata.products.products.util.AccountsTypes.SAVINGS_ACCOUNT;
+
 import static com.nttdata.products.products.util.MovimentType.MOVIMENT_DEPOSIT;
 import static com.nttdata.products.products.util.MovimentType.MOVIMENT_WITHDRAW;;
 
@@ -22,6 +30,8 @@ public class BankAccountServiceImpl implements BankAccountService{
     @Autowired
     private BankAccountRepository bankAccountRepository;
 
+    @Autowired
+    private MovementDateRepository movementDateRepository;
 
     @Autowired
     private ClientFeignClient clientFeignClient;
@@ -29,6 +39,8 @@ public class BankAccountServiceImpl implements BankAccountService{
     @Autowired
     private MovimentFeignClient movimentFeignClient;
 
+    @Autowired
+    private BankAccountTypeService bankAccountTypeService;
 
     @Override
     public List<BankAccount> getBankAccounts() {
@@ -37,15 +49,13 @@ public class BankAccountServiceImpl implements BankAccountService{
 
     @Override
     public void saveEnterpriceBankAccount(BankAccount bankAccount) {
-        //Si es cliente personal puede crear cualquier tipo de cuenta
-        //si es cliente empresarial solo puede crear cuentas corriente
-        //un cliente personal solo puede tener una de las 3 cuentas
-        
-        //whether or not the aforementioned account is a business account
+
         
         //* Verificacion si el cliente esta creando una cuenta de tipo cuenta corriente */
         long holderId = bankAccount.getBankAccountHolderId();
-        if( bankAccount.getBankAccountTypeId() == CURRENT_ACCOUNT && clientFeignClient.isEnterpriceClient(bankAccount.getBankAccountClientId()) && holderId!=0){
+        long clientId = bankAccount.getBankAccountClientId();
+        if( bankAccount.getBankAccountTypeId() == CURRENT_ACCOUNT && clientFeignClient.isEnterpriceClient(clientId) && holderId!=0){
+            bankAccount.setMovimentsAllowed(0);
             bankAccountRepository.save(bankAccount);
         }
         
@@ -54,13 +64,9 @@ public class BankAccountServiceImpl implements BankAccountService{
 
     @Override
     public void savePersonalBankAccount(BankAccount account){
-        
-        //TODO: verificar si el cliente es tipo personal desde el MS, consultando una API
         //** Verificacion de que el cliente no tiene una cuenta ya creada, de forma tal que no pueda crear otra
-        long clientId = account.getBankAccountClientId();
-        if(bankAccountRepository.findByBankAccountClientId(clientId).isEmpty() && clientFeignClient.isPersonalClient(clientId)){
-            bankAccountRepository.save(account);
-        }
+        createAccountPersonal(account);
+      
     }
 
     @Override
@@ -86,10 +92,18 @@ public class BankAccountServiceImpl implements BankAccountService{
     public void deposit(long bankAccountId, double amount){
         
         bankAccountRepository.findById(bankAccountId).ifPresentOrElse(bankAccount -> {
-            double currentBalance = bankAccount.getBalance();
-            bankAccount.setBalance(currentBalance + amount); 
-            bankAccountRepository.save(bankAccount);
-            movimentFeignClient.saveMoviment(new Moviments(bankAccountId,bankAccount.getBankAccountClientId(),amount, MOVIMENT_DEPOSIT) );
+            int movementAllowed = bankAccount.getMovimentsAllowed();
+            if(verifyMovements(bankAccount)){
+                double currentBalance = bankAccount.getBalance();
+                bankAccount.setMovimentsAllowed(movementAllowed-1);
+                bankAccount.setBalance(currentBalance + amount); 
+                bankAccountRepository.save(bankAccount);
+                movimentFeignClient.saveMoviment(new Moviments(bankAccountId,bankAccount.getBankAccountClientId(),amount, MOVIMENT_DEPOSIT) );
+            }else{
+                System.out.println("No se puede procesar la accion");
+            }
+        
+            
         },
         ()->{
             System.out.println("account not found");
@@ -101,13 +115,16 @@ public class BankAccountServiceImpl implements BankAccountService{
     public void withdraw(long bankAccountId, double amount){
         bankAccountRepository.findById(bankAccountId).ifPresentOrElse(bankAccount -> {
             double currentBalance = bankAccount.getBalance();
-            if(currentBalance>=amount){
+            int movementAllowed = bankAccount.getMovimentsAllowed();
+            if(currentBalance>=amount && verifyMovements(bankAccount)){
                 bankAccount.setBalance(currentBalance-amount);        
+                bankAccount.setMovimentsAllowed(movementAllowed-1);
                 bankAccountRepository.save(bankAccount);
                 Moviments mov = new Moviments(bankAccountId,bankAccount.getBankAccountClientId(),amount, MOVIMENT_WITHDRAW);
                 movimentFeignClient.saveMoviment(mov);
             }else{
-                System.out.println("Non Sufficient Fund");
+                System.out.println("Non Sufficient Fund or No se puede procesar la accion");
+                
             }
         },
         ()->{
@@ -115,12 +132,117 @@ public class BankAccountServiceImpl implements BankAccountService{
         });
     }
 
-    /**
-     * TODO:to check the number of moves we need to get this answer from another MS
-     * ? Se tiene que ver el mes y cotejar la cantidad demovimientos devueltos en un determinado mes y cotejar con los movimientos permitidos en el tipo de cuenta  
-     */
-    public boolean verifyMovements(){
+    @Override
+    public BalanceAvailable checkBalance(long bankAccountId){
+        BalanceAvailable balanceAvailable = new BalanceAvailable();
+        bankAccountRepository.findById(bankAccountId).ifPresentOrElse(
+            bankAccount->{
+                balanceAvailable.setId(bankAccount.getBankAccountId());
+                balanceAvailable.setBalance(bankAccount.getBalance());
+            },
+            ()->{
+                System.out.println("Cuenta no encontrada");
+            } );
+            return balanceAvailable;
+    }
+
+
+    public void createAccountPersonal(BankAccount bankAccount){
+        switch((int)bankAccount.getBankAccountTypeId()){
+            case (int)SAVINGS_ACCOUNT:
+                createSavingAccount(bankAccount);
+                break;
+            case (int)CURRENT_ACCOUNT:
+                createCurrentAccount(bankAccount);
+                break;
+            case (int)FIXED_TERM_ACCOUNT:
+                createFixedTerm(bankAccount);
+                break;
+            default:
+                
+
+        }
+    }
+
+    
+     
+
+
+    public boolean verifyMovements(BankAccount bankAccount){
+        switch((int)bankAccount.getBankAccountTypeId()){
+            case (int)SAVINGS_ACCOUNT:
+                return verifySavingsAccount(bankAccount);
+            case (int)CURRENT_ACCOUNT:
+                return verifyCurrentAccount(bankAccount);
+            case (int)FIXED_TERM_ACCOUNT:
+                return verifyFixedTermAccount(bankAccount);
+            default:
+                return false;
+
+        }   
+    }
+
+    
+    public boolean verifySavingsAccount(BankAccount bankAccount){
+        return (bankAccount.getMovimentsAllowed()>0) ? true : false;
+
+    }
+
+    public boolean verifyCurrentAccount(BankAccount bankAccount){
+        bankAccount.setMovimentsAllowed(bankAccount.getMovimentsAllowed()+1);
         return true;
     }
     
+    public boolean verifyFixedTermAccount(BankAccount bankAccount){
+
+        
+        MovementDate mov =movementDateRepository.findByBankAccountId(bankAccount.getBankAccountId()).get(0);
+
+
+        Calendar c1 = Calendar.getInstance();
+        Calendar c2 = Calendar.getInstance();
+        c2.setTime(mov.getMovementDate());
+        
+
+
+        System.out.println("meses");
+        System.out.println(c1.get(Calendar.DATE));
+        System.out.println( c2.get(Calendar.DATE));
+
+        return (bankAccount.getMovimentsAllowed()>0 && c1.get(Calendar.DATE) == c2.get(Calendar.DATE)) ? true : false;
+
+    }
+
+
+    public void createSavingAccount(BankAccount bankAccount){
+        long bankAccountTypeId = bankAccount.getBankAccountTypeId();
+        bankAccount.setMovimentsAllowed(bankAccountTypeService.getBankAccountType(bankAccountTypeId).getMovement_limit());
+        bankAccountRepository.save(bankAccount);    
+    }
+
+
+    public void createFixedTerm(BankAccount bankAccount){
+        if(bankAccount.getMovementDate()==null)
+            return;
+
+        long bankAccountTypeId = bankAccount.getBankAccountTypeId();
+        bankAccount.setMovimentsAllowed(bankAccountTypeService.getBankAccountType(bankAccountTypeId).getMovement_limit());
+
+        MovementDate movemenDate=new MovementDate();
+        BankAccount newBank = bankAccountRepository.save(bankAccount);    
+
+        movemenDate.setClientId(newBank.getBankAccountClientId());
+        movemenDate.setMovementDate(newBank.getMovementDate());
+        movemenDate.setBankAccountId(newBank.getBankAccountId());
+        movementDateRepository.save(movemenDate);
+        
+        
+    }
+
+    public void createCurrentAccount(BankAccount bankAccount){
+        long bankAccountTypeId = bankAccount.getBankAccountTypeId();
+        bankAccount.setMovimentsAllowed(bankAccountTypeService.getBankAccountType(bankAccountTypeId).getMovement_limit());
+        bankAccountRepository.save(bankAccount);    
+
+    }
 }
