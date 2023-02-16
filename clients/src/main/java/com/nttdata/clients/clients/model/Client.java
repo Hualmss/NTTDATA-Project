@@ -14,7 +14,7 @@ import lombok.Setter;
 @Setter@Getter
 @AllArgsConstructor@NoArgsConstructor
 public class Client {
-    
+  // este es un comentario
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long clinetId;
