@@ -8,10 +8,13 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+
 import com.nttdata.clients.clients.Service.ClientService;
 import com.nttdata.clients.clients.model.Client;
 
 @SpringBootApplication
+@EnableEurekaClient
 public class ClientsApplication {
 	
 	@Autowired
