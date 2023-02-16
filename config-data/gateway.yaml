@@ -12,14 +12,13 @@ eureka:
 spring:
   cloud:
     gateway:
-      discovery:
-        locator:
-          enabled: true
       routes:
         - id: clients
           uri: lb://clients
           predicates:
             - Path=/clients/**
+          filters:
+            - RewritePath=/clients/*, /
         - id: products
           uri: lb://product
           predicates:
