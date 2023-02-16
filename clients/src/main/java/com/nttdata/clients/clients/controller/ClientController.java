@@ -17,7 +17,7 @@ import com.nttdata.clients.clients.Service.ClientService;
 import com.nttdata.clients.clients.model.Client;
 
 @RestController
-@RequestMapping("clients")
+@RequestMapping("/clients")
 public class ClientController {
 
     @Autowired
