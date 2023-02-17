@@ -6,48 +6,48 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.nttdata.movimients.model.Movimients;
+import com.nttdata.movimients.model.Movement;
 import com.nttdata.movimients.repository.MovimientsRepository;
 
 @Service
-public class MovimientsServiceImpl implements MovimientsService {
+public class MovementsServiceImpl implements MovementsService {
 
 	@Autowired
 	MovimientsRepository movimientsRepository;
 
 	@Override
-	public List<Movimients> getMovimients() {
+	public List<Movement> getMovements() {
 
 		return movimientsRepository.findAll();
 	}
 
 	@Override
-	public boolean saveMovimients(Movimients movimients) {
+	public boolean saveMovements(Movement movimients) {
 		movimientsRepository.save(movimients);
 		return true;
 	}
 
 	@Override
-	public void deleteMovimients(long id) {
+	public void deleteMovements(long id) {
 		movimientsRepository.deleteById(id);
 
 	}
 
 	@Override
-	public Movimients updateMovimients(Movimients movimients) {
+	public Movement updateMovements(Movement movimients) {
 
 		return movimientsRepository.save(movimients);
 
 	}
 
 	@Override
-	public Movimients getMovimientsById(long id) {
+	public Movement getMovementsById(long id) {
 		return movimientsRepository.findById(id).orElseThrow();
 
 	}
 
 	@Override
-	public List<Movimients> getMovimientsByProductId(long id){
+	public List<Movement> getMovementsByProductId(long id){
 		return movimientsRepository.findByproductId(id);
 	}
 

@@ -15,7 +15,8 @@ import lombok.Setter;
 @Entity
 @Setter @Getter
 @Table(name = "movimient")
-public class Movimients {
+public class Movement extends AuditModel {
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,8 +28,6 @@ public class Movimients {
 
 	private double amount;
 
-	private Date creationDate;
-	
 	//@NotNull
 	private long movientType;
 
