@@ -14,7 +14,7 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "credit_types")
+@Table(name = "creditTypes")
 public class CreditType implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -13,7 +13,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Setter @Getter
+@Setter
+@Getter
 @Table(name = "movimient")
 public class Movement extends AuditModel {
 	private static final long serialVersionUID = 1L;
