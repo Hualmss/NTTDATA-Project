@@ -18,7 +18,6 @@ import com.nttdata.products.products.service.BankAccountTypeService;
 
 @EnableFeignClients
 @SpringBootApplication
-@EnableJpaAuditing
 @EnableEurekaClient
 public class ProductsApplication {
 

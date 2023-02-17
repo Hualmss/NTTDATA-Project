@@ -46,6 +46,11 @@ public class BankAccountController {
         return new ResponseEntity<>(bankAccountService.getBankAccounts(), HttpStatus.OK);
     }
 
+    @GetMapping(value="client/{clientId}", produces=MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<BankAccount>> getBankAccountsByClientId(@PathVariable long clientId){
+        return new ResponseEntity<>(bankAccountService.getBankAccountByclientId(clientId), HttpStatus.OK);
+    }
+
     @GetMapping(value="checkBalance/{accountId}", produces=MediaType.APPLICATION_JSON_VALUE)
     public BalanceAvailable checkBalance(@PathVariable long accountId){
         return bankAccountService.checkBalance(accountId);
