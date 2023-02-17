@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.nttdata.products.products.model.Moviments;
 
-@FeignClient(name = "moviments", url = "http://localhost:8003", path = "/moviments")
+@FeignClient(name = "movements", url = "http://localhost:8003", path = "/movements")
 public interface MovimentFeignClient {
 
     @PostMapping("")

@@ -26,7 +26,7 @@ import lombok.Setter;
 @Entity
 @Setter 
 @Getter
-@Table(name = "bank_account")
+@Table(name = "BankAccount")
 @AllArgsConstructor
 @NoArgsConstructor
 public class BankAccount implements Serializable{

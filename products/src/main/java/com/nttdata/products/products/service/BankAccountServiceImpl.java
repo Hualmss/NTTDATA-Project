@@ -65,8 +65,17 @@ public class BankAccountServiceImpl implements BankAccountService{
     @Override
     public void savePersonalBankAccount(BankAccount account){
         //** Verificacion de que el cliente no tiene una cuenta ya creada, de forma tal que no pueda crear otra
-        createAccountPersonal(account);
-      
+        int registers = bankAccountRepository.findByBankAccountClientId(account.getBankAccountClientId()).size();
+        boolean isPersonalClient = clientFeignClient.isPersonalClient(account.getBankAccountClientId());
+        if(registers==0 && isPersonalClient)
+            createAccountPersonal(account);
+        else
+            System.out.println("no se puede");
+        
+            
+        
+            
+            
     }
 
     @Override
@@ -144,6 +153,11 @@ public class BankAccountServiceImpl implements BankAccountService{
                 System.out.println("Cuenta no encontrada");
             } );
             return balanceAvailable;
+    }
+
+    @Override
+    public List<BankAccount> getBankAccountByclientId(long id){
+        return bankAccountRepository.findByBankAccountClientId(id);
     }
 
 
